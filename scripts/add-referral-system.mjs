@@ -5,7 +5,9 @@ const cssPath = 'src/styles.css';
 let source = fs.readFileSync(jsxPath, 'utf8');
 
 if (!source.includes('function ReferralFloating')) {
+  if (!source.includes('function App() {')) throw new Error('NovaPool App component marker not found');
   source = source.replace('function App() {', 'function NovaPoolCore() {');
+
   const referralCode = `
 function ReferralFloating() {
   const [session, setSession] = useState(null);
@@ -14,27 +16,27 @@ function ReferralFloating() {
   const [copied, setCopied] = useState(false);
   const load = async current => {
     if (!current?.user) { setSummary(null); return; }
-    const { data } = await supabase.rpc('np_get_referral_summary');
-    if (data?.[0]) setSummary(data[0]);
+    try {
+      const { data, error } = await supabase.rpc('np_get_referral_summary');
+      if (!error && data?.[0]) setSummary(data[0]);
+    } catch (_) {}
   };
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data }) => {
-      setSession(data.session);
-      if (data.session) {
-        const pending = localStorage.getItem('novapool:referral-code');
-        if (pending) { await supabase.rpc('np_signup_referral', { p_referral_code: pending }); localStorage.removeItem('novapool:referral-code'); }
-        await load(data.session);
+    let mounted = true;
+    const attach = async sessionData => {
+      if (!mounted) return;
+      setSession(sessionData);
+      if (!sessionData) { setSummary(null); return; }
+      const pending = localStorage.getItem('novapool:referral-code');
+      if (pending) {
+        try { await supabase.rpc('np_signup_referral', { p_referral_code: pending }); } catch (_) {}
+        localStorage.removeItem('novapool:referral-code');
       }
-    });
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, next) => {
-      setSession(next);
-      if (next) {
-        const pending = localStorage.getItem('novapool:referral-code');
-        if (pending) { await supabase.rpc('np_signup_referral', { p_referral_code: pending }); localStorage.removeItem('novapool:referral-code'); }
-        await load(next);
-      } else setSummary(null);
-    });
-    return () => listener.subscription.unsubscribe();
+      await load(sessionData);
+    };
+    supabase.auth.getSession().then(({ data }) => attach(data.session));
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, next) => attach(next));
+    return () => { mounted = false; listener.subscription.unsubscribe(); };
   }, []);
   useEffect(() => {
     if (!session) return undefined;
@@ -43,20 +45,22 @@ function ReferralFloating() {
   }, [session]);
   if (!session || !summary?.referral_code) return null;
   const link = window.location.origin + '/?ref=' + encodeURIComponent(summary.referral_code);
-  const copy = async () => { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 1800); };
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (_) {}
+  };
   return (
     <>
-      <button className="referral-fab" onClick={() => setOpen(true)} aria-label="Open referrals"><span className="referral-fab-orb">↗</span><span>INVITE & EARN $1.50</span></button>
+      <button type="button" className="referral-fab" onClick={() => setOpen(true)} aria-label="Open referrals"><span className="referral-fab-orb">↗</span><span>INVITE & EARN $1.50</span></button>
       {open && <div className="referral-overlay" onClick={() => setOpen(false)}>
         <section className="referral-card-3d" onClick={e => e.stopPropagation()}>
-          <button className="referral-close" onClick={() => setOpen(false)}>×</button>
+          <button type="button" className="referral-close" onClick={() => setOpen(false)} aria-label="Close">×</button>
           <div className="referral-orbit"><span>✦</span></div>
           <p className="eyebrow">NOVA REFERRALS</p>
           <h2>Invite friends.<br/><span>Earn $1.50.</span></h2>
           <p className="referral-copy">Share your personal link. When a friend joins through it and their deposit is approved, you receive <strong>$1.50</strong> in your NovaPool balance.</p>
           <div className="referral-stats"><div><strong>{summary.referred_count || 0}</strong><small>FRIENDS</small></div><div><strong>{summary.rewarded_count || 0}</strong><small>QUALIFIED</small></div><div><strong>${Number(summary.earned || 0).toFixed(2)}</strong><small>EARNED</small></div></div>
           <label className="referral-label">YOUR REFERRAL LINK</label>
-          <div className="referral-link-row"><input value={link} readOnly /><button onClick={copy}>{copied ? 'COPIED' : 'COPY'}</button></div>
+          <div className="referral-link-row"><input value={link} readOnly /><button type="button" onClick={copy}>{copied ? 'COPIED' : 'COPY'}</button></div>
           <div className="referral-code">Referral code <strong>{summary.referral_code}</strong></div>
           <p className="referral-note">Your friend must deposit successfully and pass admin verification. The $1.50 reward is then credited automatically.</p>
         </section>
@@ -77,7 +81,8 @@ function App() { return <><NovaPoolCore /><ReferralBridge /><ReferralFloating />
 
 `;
   const marker = "createRoot(document.getElementById('root')).render(<App />);";
-  if (source.includes(marker)) source = source.replace(marker, referralCode + marker);
+  if (!source.includes(marker)) throw new Error('NovaPool root render marker not found');
+  source = source.replace(marker, referralCode + marker);
 }
 fs.writeFileSync(jsxPath, source);
 
@@ -89,4 +94,4 @@ if (!css.includes('.referral-fab')) {
 `;
   fs.writeFileSync(cssPath, css);
 }
-console.log('NovaPool referral UI applied.');
+console.log('NovaPool referral frontend ready.');
