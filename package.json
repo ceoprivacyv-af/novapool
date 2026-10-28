@@ -1,11 +1,11 @@
 {
   "name": "novapool",
   "private": true,
-  "version": "0.2.1",
+  "version": "0.2.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/payout-ui-patch.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
