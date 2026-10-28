@@ -5,6 +5,7 @@
 body { margin: 0; min-width: 320px; background: #070708; }
 button, input { font: inherit; }
 button { cursor: pointer; }
+button:disabled { cursor: wait; opacity: .65; }
 .page-shell { min-height: 100vh; overflow: hidden; position: relative; background: radial-gradient(circle at 15% 10%, rgba(184,145,68,.10), transparent 34%), #070708; }
 .ambient { position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none; }
 .ambient-one { width: 360px; height: 360px; background: rgba(196,151,66,.10); left: -180px; bottom: 5%; }
@@ -20,6 +21,9 @@ button { cursor: pointer; }
 .trust-row { display: flex; align-items: center; gap: 9px; color: #777570; font-size: 13px; }
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #78c995; box-shadow: 0 0 12px rgba(120,201,149,.6); }
 .auth-card { width: 100%; padding: 34px; border: 1px solid rgba(255,255,255,.09); border-radius: 26px; background: rgba(17,17,19,.88); box-shadow: 0 30px 90px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.035); backdrop-filter: blur(18px); }
+.success-card h2 { margin: 0 0 10px; font: 700 31px/1.15 Manrope, sans-serif; letter-spacing: -.035em; }
+.success-copy { color: #85827d; font-size: 13px; line-height: 1.6; margin: 0 0 26px; }
+.success-copy strong { color: #d9d6d0; font-weight: 600; }
 .mobile-brand { display: none; align-items: center; gap: 10px; margin-bottom: 28px; font-family: Manrope, sans-serif; }
 .tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,.08); margin-bottom: 30px; }
 .tab { border: 0; background: none; color: #6f6e6b; padding: 0 0 15px; margin-right: 28px; font-size: 13px; font-weight: 700; position: relative; }
@@ -33,7 +37,7 @@ input:focus { border-color: rgba(211,169,93,.65); box-shadow: 0 0 0 3px rgba(211
 input::placeholder { color: #53514d; }
 .password-wrap { position: relative; }
 .password-wrap input { padding-right: 58px; }
-.show-btn { position: absolute; right: 12px; top: 23px; transform: translateY(-50%); border: 0; background: none; color: #b8924e; font-size: 11px; font-weight: 700; }
+.show-btn { position: absolute; right: 12px; top: 33px; transform: translateY(-50%); border: 0; background: none; color: #b8924e; font-size: 11px; font-weight: 700; }
 .check-label { display: flex; align-items: center; gap: 9px; color: #777570; font-size: 11px; font-weight: 400; }
 .check-label input { accent-color: #c99f57; }
 .primary-btn, .secondary-btn { width: 100%; height: 50px; border-radius: 12px; font-weight: 700; }
@@ -44,5 +48,8 @@ input::placeholder { color: #53514d; }
 .divider::before, .divider::after { content: ''; height: 1px; background: rgba(255,255,255,.07); flex: 1; }
 .switch-copy { text-align: center; color: #686662; font-size: 11px; margin: 23px 0 0; }
 .switch-copy button { border: 0; padding: 0; background: none; color: #d0a45a; font-weight: 700; }
+.auth-message { border-radius: 10px; padding: 11px 13px; margin: -6px 0 18px; font-size: 11px; line-height: 1.5; }
+.success-message { border: 1px solid rgba(120,201,149,.22); background: rgba(120,201,149,.06); color: #a5d9b7; }
+.error-message { border: 1px solid rgba(215,100,100,.25); background: rgba(215,100,100,.06); color: #e7a2a2; }
 .demo-note { text-align: center; color: #484742; font-size: 9px; margin: 22px 0 0; }
 @media (max-width: 850px) { .auth-layout { grid-template-columns: 1fr; padding: 24px 16px; max-width: 560px; } .brand-panel { display: none; } .mobile-brand { display: flex; } .auth-card { padding: 25px 20px; border-radius: 22px; } }
