@@ -34,9 +34,13 @@ const newRefresh = `  const refreshAdmin = async () => {
 if (!source.includes(oldRefresh)) throw new Error('refreshAdmin block not found');
 source = source.replace(oldRefresh, newRefresh);
 
-const oldDelete = `      if (row.screenshot_path) await supabase.storage.from('np-deposit-proofs').remove([row.screenshot_path]);
-`;
+const oldDelete = `      if (row.screenshot_path) await supabase.storage.from('np-deposit-proofs').remove([row.screenshot_path]);\n`;
 source = source.replace(oldDelete, '');
+
+const oldDepositForm = `<button className="primary-btn" disabled={p.busy} onClick={p.submitDeposit}>{p.busy ? 'Submitting…' : 'Submit deposit for review'} <span>→</span></button></div>}`;
+const newDepositForm = `<button className="primary-btn" disabled={p.busy || p.deposits.some(row => row.status === 'pending')} onClick={p.submitDeposit}>{p.busy ? 'Submitting…' : p.deposits.some(row => row.status === 'pending') ? 'Deposit pending approval' : 'Submit deposit for review'} <span>→</span></button><div className="history-list"><h3>Deposit history</h3>{p.deposits.length ? p.deposits.map(row => <div className="profile-detail" key={row.id}><span><strong>{money(row.amount)}</strong><small>{row.network} · {dateText(row.created_at)}</small></span><strong>{row.status === 'pending' ? 'PENDING' : row.status === 'approved' ? 'APPROVED' : row.status.toUpperCase()}</strong></div>) : <p className="muted">No deposits submitted yet.</p>}</div></div>}`;
+if (!source.includes(oldDepositForm)) throw new Error('deposit form block not found');
+source = source.replace(oldDepositForm, newDepositForm);
 
 const start = source.indexOf('function AdminPanel(p) {');
 const end = source.indexOf('function PayoutSuccess(', start);
@@ -50,4 +54,4 @@ const newAdminPanel = `function AdminPanel(p) {
 `;
 source = source.slice(0, start) + newAdminPanel + source.slice(end);
 fs.writeFileSync(path, source);
-console.log('NovaPool deposit proof patch applied.');
+console.log('NovaPool deposit proof, pending-lock, and deposit-history patch applied.');
