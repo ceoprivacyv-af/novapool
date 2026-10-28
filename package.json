@@ -1,7 +1,7 @@
 {
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/fix-deposit-proof.mjs && node scripts/fix-deposit-notices.mjs && node scripts/add-referral-system.mjs && node scripts/fix-product-stats.mjs && vite build",
+    "build": "node scripts/fix-deposit-proof.mjs && node scripts/fix-deposit-notices.mjs && node scripts/ensure-referral-import.mjs && node scripts/fix-product-stats.mjs && vite build",
     "preview": "vite preview"
   }
 }
