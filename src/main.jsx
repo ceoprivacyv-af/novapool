@@ -99,30 +99,64 @@ function App() {
     setMessage('You have been signed out.');
   }
 
-  if (session) {
-    const userName = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Member';
+  const products = [
+    { id: 'halo', name: 'Aurum Halo', category: 'SIGNATURE SERIES', description: 'A sculptural gold halo with a refined, gallery-inspired finish.', price: 25, tone: 'gold', tag: 'FEATURED' },
+    { id: 'arc', name: 'Obsidian Arc', category: 'OBSIDIAN SERIES', description: 'A dark mineral silhouette with a subtle metallic edge.', price: 50, tone: 'silver', tag: 'LIMITED' },
+    { id: 'orb', name: 'Solstice Orb', category: 'ATELIER SERIES', description: 'Warm ambient light and a minimal architectural form.', price: 100, tone: 'bronze', tag: 'ATELIER' }
+  ];
+  const [tab, setTab] = useState('home');
+  const [chosenProduct, setChosenProduct] = useState(0);
+  const [demoNotice, setDemoNotice] = useState('');
+  const userName = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Member';
+  const nav = [
+    { id: 'home', label: 'Home', icon: '⌂' },
+    { id: 'product', label: 'Product', icon: '◇' },
+    { id: 'other', label: 'Other', icon: '▦' },
+    { id: 'profile', label: 'Profile', icon: '◉' }
+  ];
+  const product = products[chosenProduct];
+  const demoAction = (label) => setDemoNotice(label + ' — demo only. No funds were moved.');
+  const art = (tone = 'gold') => <div className={'product-art art-' + tone}><div className="art-glow" /><div className="art-ring"><div className="ring-inner" /></div><div className="art-pedestal"><div className="pedestal-top" /></div><div className="art-reflection" /></div>;
+  const productCard = (item, index) => <button className="product-card" key={item.id} onClick={() => { setChosenProduct(index); setTab('product'); }}><div className="product-card-art">{art(item.tone)}<span className="product-tag">{item.tag}</span></div><div className="product-card-copy"><p className="eyebrow">{item.category}</p><h3>{item.name}</h3><p>{item.description}</p><div className="card-price"><span>Illustrative price</span><strong>{'$' + item.price.toFixed(2)}</strong></div></div></button>;
 
+  if (session) {
     return (
-      <main className="page-shell">
-        <div className="ambient ambient-one" />
-        <div className="ambient ambient-two" />
-        <section className="auth-layout">
-          <div className="brand-panel">
-            <div className="brand-mark">N</div>
-            <p className="eyebrow">NOVA FINANCE</p>
-            <h1>You're<br /><span>inside.</span></h1>
-            <p className="brand-copy">Your NovaPool authentication is connected to Supabase and your session is active.</p>
-            <div className="trust-row"><span className="status-dot" /><span>Authenticated session</span></div>
-          </div>
-          <div className="auth-card success-card">
-            <div className="mobile-brand"><div className="brand-mark small">N</div><strong>NovaPool</strong></div>
-            <p className="eyebrow">ACCOUNT ACTIVE</p>
-            <h2>Welcome, {userName}.</h2>
-            <p className="success-copy">You're signed in as <strong>{session.user.email}</strong>.</p>
-            <button className="primary-btn" type="button" onClick={handleSignOut}>Sign out <span>→</span></button>
-            <p className="demo-note">Authentication is live · NovaPool dashboard comes next</p>
-          </div>
-        </section>
+      <main className="app-shell">
+        <div className="ambient ambient-one" /><div className="ambient ambient-two" />
+        <header className="app-header">
+          <button className="wordmark" onClick={() => setTab('home')}><span className="brand-mark">N</span><span>NovaPool<small>THE DIGITAL ATELIER</small></span></button>
+          <div className="header-right"><span className="sandbox-chip"><i /> Sandbox mode</span><button className="avatar-button" onClick={() => setTab('profile')}>{userName.slice(0,1).toUpperCase()}</button></div>
+        </header>
+        <div className="app-content">
+          {demoNotice && <div className="app-message">{demoNotice}<button onClick={() => setDemoNotice('')}>×</button></div>}
+          {tab === 'home' && <section className="page-content">
+            <div className="welcome-line"><div><p className="eyebrow">YOUR PRIVATE SPACE</p><h1>Good to see you, <span>{userName.split(' ')[0]}.</span></h1><p className="muted">A clearer view of your NovaPool experience.</p></div><div className="date-pill"><i /> Account connected</div></div>
+            <div className="hero-card"><div className="hero-card-copy"><p className="eyebrow">WELCOME TO THE ATELIER</p><h2>Designed to feel<br /><span>different.</span></h2><p>Discover sculptural forms, warm metallic finishes, and thoughtful digital experiences.</p><button className="light-btn" onClick={() => setTab('product')}>Explore collection <span>↗</span></button></div><div className="hero-product">{art()}</div><div className="hero-card-orbit" /></div>
+            <div className="section-heading"><div><p className="eyebrow">DISCOVER</p><h2>Made to stand apart</h2></div><button className="text-link" onClick={() => setTab('product')}>View all ↗</button></div>
+            <div className="product-grid">{products.slice(0,2).map((item,index) => productCard(item,index))}</div>
+            <div className="note-banner"><span className="note-icon">✧</span><div><strong>Built for clarity</strong><p>NovaPool is a sandbox. Prices and actions are demonstrations, not investment offers or promises of returns.</p></div></div>
+          </section>}
+          {tab === 'product' && <section className="page-content"><div className="page-title-row"><div><p className="eyebrow">THE COLLECTION</p><h1>Objects of <span>quiet luxury.</span></h1><p className="muted">Sculptural concepts in a warm black-and-gold world.</p></div><span className="collection-count">03 OBJECTS</span></div>
+            <div className="collection-feature"><div className="feature-art">{art(product.tone)}</div><div className="feature-copy"><span className="product-tag">{product.tag}</span><p className="eyebrow">{product.category}</p><h2>{product.name}</h2><p>{product.description}</p><div className="price-line"><span>Illustrative price</span><strong>{'$' + product.price.toFixed(2)}</strong></div><button className="primary-btn" onClick={() => demoAction('Viewed ' + product.name)}>View product details <span>↗</span></button><p className="fine-print">Demo catalogue · No purchase or payment is processed.</p></div></div>
+            <div className="section-heading"><div><p className="eyebrow">CURATED FOR YOU</p><h2>The full collection</h2></div></div><div className="product-grid three">{products.map((item,index) => productCard(item,index))}</div>
+          </section>}
+          {tab === 'other' && <section className="page-content"><div className="page-title-row"><div><p className="eyebrow">BEYOND THE ORDINARY</p><h1>Explore <span>more.</span></h1><p className="muted">Helpful tools for your NovaPool experience.</p></div></div>
+            <div className="service-grid">
+              <button className="service-card" onClick={() => demoAction('Opened wallet overview')}><span className="service-icon">◈</span><span><strong>Wallet overview</strong><small>Preview account and wallet features</small></span><b>↗</b></button>
+              <button className="service-card" onClick={() => demoAction('Opened security center')}><span className="service-icon">⬡</span><span><strong>Security center</strong><small>Authentication and account safety</small></span><b>↗</b></button>
+              <button className="service-card" onClick={() => demoAction('Opened help center')}><span className="service-icon">?</span><span><strong>Help center</strong><small>Find your way around NovaPool</small></span><b>↗</b></button>
+              <button className="service-card" onClick={() => setTab('profile')}><span className="service-icon">◉</span><span><strong>Account settings</strong><small>View your profile and session</small></span><b>↗</b></button>
+            </div><div className="note-banner"><span className="note-icon">✧</span><div><strong>Sandbox environment</strong><p>Wallet and service actions are demo-only. No deposits, withdrawals, or payments are processed.</p></div></div>
+          </section>}
+          {tab === 'profile' && <section className="page-content profile-page"><div className="page-title-row"><div><p className="eyebrow">YOUR ACCOUNT</p><h1>Personal <span>space.</span></h1><p className="muted">Manage your signed-in NovaPool session.</p></div></div>
+            <div className="profile-card"><div className="profile-top"><div className="profile-avatar">{userName.slice(0,1).toUpperCase()}</div><div><h2>{userName}</h2><p>{session.user.email}</p><span className="verified-pill">◇ Supabase authenticated</span></div></div>
+              <div className="profile-detail"><span>Full name</span><strong>{session.user.user_metadata?.full_name || 'Not provided'}</strong></div><div className="profile-detail"><span>Email address</span><strong>{session.user.email}</strong></div><div className="profile-detail"><span>Account status</span><strong className="status-active">● Active session</strong></div><div className="profile-detail"><span>Environment</span><strong>Sandbox</strong></div>
+              <button className="signout-btn" onClick={handleSignOut}>↗ Sign out of NovaPool</button>
+            </div><div className="note-banner"><span className="note-icon">✧</span><div><strong>Your account, your control</strong><p>Never share your password or authentication links. This profile does not store payment details.</p></div></div>
+          </section>}
+        </div>
+        <nav className="bottom-nav">{nav.map(item => <button key={item.id} className={tab === item.id ? 'nav-item active' : 'nav-item'} onClick={() => setTab(item.id)}><span className="nav-icon">{item.icon}</span><span>{item.label}</span></button>)}</nav>
+        <footer className="app-footer"><span>© 2026 NovaPool</span><span>Thoughtfully designed · Sandbox only</span></footer>
       </main>
     );
   }
