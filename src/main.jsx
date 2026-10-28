@@ -107,7 +107,7 @@ function App() {
   const [tab, setTab] = useState('home');
   const [chosenProduct, setChosenProduct] = useState(0);
   const [demoNotice, setDemoNotice] = useState('');
-  const userName = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Member';
+  const userName = session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || 'Member';
   const nav = [
     { id: 'home', label: 'Home', icon: '⌂' },
     { id: 'product', label: 'Product', icon: '◇' },
