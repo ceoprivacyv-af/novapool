@@ -1,19 +1,7 @@
 {
-  "name": "novapool",
-  "private": true,
-  "version": "0.2.5",
-  "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/fix-deposit-proof.mjs && vite build",
+    "build": "node scripts/fix-deposit-proof.mjs && node scripts/fix-deposit-notices.mjs && vite build",
     "preview": "vite preview"
-  },
-  "dependencies": {
-    "@vitejs/plugin-react": "latest",
-    "@supabase/supabase-js": "latest",
-    "vite": "latest",
-    "react": "latest",
-    "react-dom": "latest"
-  },
-  "devDependencies": {}
+  }
 }
